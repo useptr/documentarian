@@ -17,63 +17,54 @@ public class Documentarian {
         if (obj == null || classInstances.contains(obj.toString()))
             return;
         classInstances.add(obj.toString());
-        ArrayList<FieldDTO> fieldDTOs = new ArrayList<>();
-        FieldDTO baseClass = new FieldDTO();
         Class<?> aClass = obj.getClass();
 
-        String classModifiers = getModifiers(aClass.getModifiers());
-        baseClass.modifiers = classModifiers;
-//        System.out.println(classModifiers);
+        ArrayList<FieldDTO> fieldDTOs = new ArrayList<>();
+        FieldDTO baseClass = new FieldDTO();
 
-        String className = aClass.getSimpleName().toString();
-        baseClass.type = className;
-//        System.out.println(className);
-
-        String classValue = obj.toString();
-        baseClass.value = classValue;
-
+        baseClass.modifiers = getModifiers(aClass.getModifiers());
+        baseClass.type =  aClass.getSimpleName();
+        baseClass.value = getValueInfo(obj);
         baseClass.isBasicType = isBasicType(aClass);
         baseClass.isArray = false;
+        fieldDTOs.add(baseClass);
 
         Field[] fields = aClass.getDeclaredFields();
         for (Field field : fields) {
+            field.setAccessible(true);
             FieldDTO fieldDTO = new FieldDTO();
-            fieldDTO.isArray = false;
 
+            fieldDTO.isArray = false;
             int mod = field.getModifiers();
-            String modifiers = getModifiers(mod);
-            fieldDTO.modifiers = modifiers;
+            fieldDTO.modifiers = getModifiers(mod);
 //            System.out.println(modifiers);
 
-            String type = field.getType().getSimpleName();
-            fieldDTO.type = type;
-
-            fieldDTO.isBasicType = isBasicType(field.get(obj).getClass());
-
-            String value = "";
-            field.setAccessible(true);
-            if (field.get(obj) == null) {
-                value += "null";
+            fieldDTO.type = field.getType().getSimpleName();
+            fieldDTO.value = "";
+            Object subObj = field.get(obj);
+            if (subObj == null) {
+                fieldDTO.value  += "null";
             } else {
+                Class<?> subClass = subObj.getClass();
+                fieldDTO.isBasicType = isBasicType(subClass);
                 if (field.getType().isArray()) {
                     fieldDTO.isArray = true;
-                    value += "[ ";
-                    Object subObj = field.get(obj);
-                    Class<?> subClass = subObj.getClass();
+                    fieldDTO.value  += "[ ";
+
+
                     Field[] subFields = subClass.getDeclaredFields();
                     for (Field subField : subFields) {
                         subField.setAccessible(true);
-                        value += "<a href=\""+ htmlController.absoluteReportPath() + "\\" + getValueInfo(subField.get(subObj))+ ".html"+"\">" + getValueInfo(subField.get(subObj)) + "</a>" + ", ";
+                        fieldDTO.value  += "<a href=\""+ htmlController.absoluteReportPath() + "\\" + getValueInfo(subField.get(subObj))+ ".html"+"\">" + getValueInfo(subField.get(subObj)) + "</a>" + ", ";
                     }
-                    value += " ]";
+                    fieldDTO.value  += " ]";
                 } else {
-                    value = getValueInfo(field.get(obj));
+                    fieldDTO.value  = getValueInfo(field.get(obj));
                 }
             }
-            fieldDTO.value = value;
-//            System.out.println(value);
-
+            fieldDTOs.add(fieldDTO);
         }
+        htmlController.createHtmlFileFromClassInstance(fieldDTOs);
 
     }
     public String getValueInfo(Object obj) throws IllegalAccessException {

@@ -1,6 +1,9 @@
 package com.example.documentarian;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +33,7 @@ public class HtmlReportController {
                 ".fields {\n" +
                 "  font-size: 1.2em;\n" +
                 "  padding: 10px;\n" +
-                "  background-color: #666b7a;\n" +
+                "  background-color: #303134;\n" +
                 "  display: grid;\n" +
                 "  justify-content: start;\n" +
                 "  grid-template-columns: auto auto auto;\n" +
@@ -67,12 +70,20 @@ public class HtmlReportController {
         return true;
     }
     public void createHtmlFileFromClassInstance(ArrayList<FieldDTO> fields) {
-        String html = "<div class=\"instance\">\n<div class=\"title\">\n";
+        String html = "<!DOCTYPE html>\n<html>\n<body><head>\n<style>";
+        html += css;
+        html += "</style>\n</head>";
+        html += "<div class=\"instance\">\n<div class=\"title\">\n";
         html += "<div class=\"modifiers\">\n" + fields.get(0).modifiers + "</div>\n";
-        html += "<div class=\"type\">\n" +  fields.get(0).type + "</div>\n</div>\n";
-        html += "<div class=\"value\">"+ fields.get(0).value + "</div>";
+        html += "<div class=\"type\">\n" +  fields.get(0).type + "</div>\n";
+        html += "<div class=\"value\">"+ fields.get(0).value + "</div>\n</div>\n";
         html += "<div class=\"fields\">\n";
+        boolean isBaseClass = true;
         for (FieldDTO field : fields) {
+            if (isBaseClass) {
+                isBaseClass = false;
+                continue;
+            }
             html += "<div class=\"modifiers\">" + field.modifiers + "</div>\n";
             html += "<div class=\"type\">" + field.type + "</div>\n";
             html += "<div class=\"value\">";
@@ -84,12 +95,24 @@ public class HtmlReportController {
             html += "</div>";
         }
         html += "</div>\n</div>";
+        html +="</body>\n</html>";
+//        System.out.println(html);
+        File out = new File(AbsolutePath(reportPath) + "\\" +fields.get(0).value+ ".html");
 
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(out));
+            bw.write(html);
+            bw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 //    public String curAbsolutePath() {
 //        return curPath.toAbsolutePath().toString();
 //    }
 }
+//value += "<a href=\""+ htmlController.absoluteReportPath() + "\\" + getValueInfo(subField.get(subObj))+ ".html"+"\">" + getValueInfo(subField.get(subObj)) + "</a>" + ", ";
+
 
 //<div class="instance">
 //<div class="title">
