@@ -1,5 +1,6 @@
 package com.example.documentarian;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ public class Documentarian {
             FieldDTO fieldDTO = new FieldDTO();
 
             fieldDTO.isArray = false;
+            fieldDTO.isBasicType = true;
             int mod = field.getModifiers();
             fieldDTO.modifiers = getModifiers(mod);
 //            System.out.println(modifiers);
@@ -51,11 +53,11 @@ public class Documentarian {
                     fieldDTO.isArray = true;
                     fieldDTO.value  += "[ ";
 
-
                     Field[] subFields = subClass.getDeclaredFields();
-                    for (Field subField : subFields) {
-                        subField.setAccessible(true);
-                        fieldDTO.value  += "<a href=\""+ htmlController.absoluteReportPath() + "\\" + getValueInfo(subField.get(subObj))+ ".html"+"\">" + getValueInfo(subField.get(subObj)) + "</a>" + ", ";
+                    Object[] objects = (Object[]) subObj;
+                    for (Object objItem : objects) {
+//                        subField.setAccessible(true);
+                        fieldDTO.value  += "<a href=\""+ htmlController.absoluteReportPath() + "\\" + getValueInfo(objItem)+ ".html"+"\">" + getValueInfo(objItem) + "</a>" + ", ";
                     }
                     fieldDTO.value  += " ]";
                 } else {

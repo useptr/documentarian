@@ -14,6 +14,7 @@ public class App extends Application {
         Point point = new Point();
         point.setW(10);
         Polygon polygon = new Polygon();
+        polygon.polygon[0] = point;
         polygon.p = point;
 
 

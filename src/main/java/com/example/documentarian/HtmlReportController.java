@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class HtmlReportController {
 //    private Path curPath;
@@ -53,20 +54,24 @@ public class HtmlReportController {
     public boolean clearReport() {
         boolean reportDirEmptyAndExist = false;
         if (Files.exists(reportPath))
-            reportDirEmptyAndExist = deleteDirectory(reportPath.toFile());
+            reportDirEmptyAndExist = deleteAllFilesInDirectory(reportPath.toFile());
         else {
             File newReportDir = new File(absoluteReportPath());
             reportDirEmptyAndExist = newReportDir.mkdir();
         }
         return reportDirEmptyAndExist;
     }
-    boolean deleteDirectory(File directoryToBeDeleted) {
-        File[] allContents = directoryToBeDeleted.listFiles();
-        if (allContents != null) {
-            for (File file : allContents) {
-                deleteDirectory(file);
-            }
+    boolean deleteAllFilesInDirectory(File directoryToBeDeleted) {
+        for (File file: Objects.requireNonNull(directoryToBeDeleted.listFiles())) {
+                file.delete();
         }
+//        File[] allContents = directoryToBeDeleted.listFiles();
+//        if (allContents != null) {
+//            for (File file : allContents) {
+//                file.delete();
+//            }
+//        }
+
         return true;
     }
     public void createHtmlFileFromClassInstance(ArrayList<FieldDTO> fields) {
