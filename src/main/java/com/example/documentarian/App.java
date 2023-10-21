@@ -1,14 +1,12 @@
 package com.example.documentarian;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-public class HelloApplication extends Application {
+public class App extends Application {
     @Override
     public void start(Stage stage) throws IOException, ClassNotFoundException, IllegalAccessException {
         Documentarian doc = new Documentarian();
@@ -18,7 +16,10 @@ public class HelloApplication extends Application {
         Polygon polygon = new Polygon();
         polygon.p = point;
 
-        doc.classInstanceInfo(polygon);
+
+
+        doc.getClassInstanceReport(polygon);
+//        doc.classInstanceInfo(polygon);
 //        doc.classInstanceInfo(point);
 
 //        getInfoAboutClass("com.example.documentarian.Polygon");

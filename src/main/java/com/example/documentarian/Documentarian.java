@@ -2,25 +2,53 @@ package com.example.documentarian;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Documentarian {
+    private static HashSet<String> classInstances = new HashSet<>();
+    private HtmlReportController htmlController = new HtmlReportController();
+    public void getClassInstanceReport(Object obj) throws IllegalAccessException {
+        htmlController.clearReport();
+        System.out.println(htmlController.absoluteReportPath() + "\\" +getValueInfo(obj)+ ".html");
+        classInstanceInfo(obj);
+    }
     public void classInstanceInfo(Object obj) throws IllegalAccessException {
+        if (obj == null || classInstances.contains(obj.toString()))
+            return;
+        classInstances.add(obj.toString());
+        ArrayList<FieldDTO> fieldDTOs = new ArrayList<>();
+        FieldDTO baseClass = new FieldDTO();
         Class<?> aClass = obj.getClass();
 
         String classModifiers = getModifiers(aClass.getModifiers());
-        System.out.println(classModifiers);
+        baseClass.modifiers = classModifiers;
+//        System.out.println(classModifiers);
 
         String className = aClass.getSimpleName().toString();
-        System.out.println(className);
+        baseClass.type = className;
+//        System.out.println(className);
+
+        String classValue = obj.toString();
+        baseClass.value = classValue;
+
+        baseClass.isBasicType = isBasicType(aClass);
+        baseClass.isArray = false;
+
         Field[] fields = aClass.getDeclaredFields();
         for (Field field : fields) {
+            FieldDTO fieldDTO = new FieldDTO();
+            fieldDTO.isArray = false;
 
             int mod = field.getModifiers();
             String modifiers = getModifiers(mod);
-            System.out.println(modifiers);
+            fieldDTO.modifiers = modifiers;
+//            System.out.println(modifiers);
 
             String type = field.getType().getSimpleName();
-            System.out.println(type);
+            fieldDTO.type = type;
+
+            fieldDTO.isBasicType = isBasicType(field.get(obj).getClass());
 
             String value = "";
             field.setAccessible(true);
@@ -28,39 +56,40 @@ public class Documentarian {
                 value += "null";
             } else {
                 if (field.getType().isArray()) {
-                        value += "[ ";
-                    Class<?> subClass = field.get(obj).getClass();
+                    fieldDTO.isArray = true;
+                    value += "[ ";
+                    Object subObj = field.get(obj);
+                    Class<?> subClass = subObj.getClass();
                     Field[] subFields = subClass.getDeclaredFields();
                     for (Field subField : subFields) {
-                        value += getValueInfo(subField, obj) + ", ";
+                        subField.setAccessible(true);
+                        value += "<a href=\""+ htmlController.absoluteReportPath() + "\\" + getValueInfo(subField.get(subObj))+ ".html"+"\">" + getValueInfo(subField.get(subObj)) + "</a>" + ", ";
                     }
                     value += " ]";
                 } else {
-                    value = getValueInfo(field, obj);
+                    value = getValueInfo(field.get(obj));
                 }
             }
-
-
-
-            System.out.println(value);
+            fieldDTO.value = value;
+//            System.out.println(value);
 
         }
 
     }
-    public String getValueInfo(Field field, Object obj) throws IllegalAccessException {
+    public String getValueInfo(Object obj) throws IllegalAccessException {
         String value = "";
-        if (field.get(obj) == null) {
+        if (obj == null) {
             value = "null";
         } else {
-            if (isBasicType(field.getType())) {
-                value = field.get(obj).toString();
+            if (isBasicType(obj.getClass())) {
+                value = obj.toString();
             } else {
-                String fieldRef = field.get(obj).toString();
+                String fieldRef = obj.toString();
                 int SimpleRefStart = fieldRef.lastIndexOf(".") + 1;
                 if (SimpleRefStart < 0 || SimpleRefStart >= fieldRef.length())
                     SimpleRefStart =0;
                 value = fieldRef.substring(SimpleRefStart) ;
-//                classInstanceInfo(field.get(obj));
+                classInstanceInfo(obj);
             }
         }
         return value;
