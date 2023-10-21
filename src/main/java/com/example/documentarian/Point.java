@@ -1,11 +1,11 @@
 package com.example.documentarian;
 
 public class Point {
-    public  double z;
+    public  double z = 0;
 
-    protected double w;
-    private double x;
-    private double y;
+    private double w = 0;
+    private static volatile transient double x = 0;
+    private double y = 0;
 
     public double getX() {
         return x;
@@ -14,4 +14,7 @@ public class Point {
         return y;
     }
 
+    public void setW(double w) {
+        this.w = w;
+    }
 }

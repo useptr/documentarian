@@ -10,16 +10,24 @@ import java.lang.reflect.Field;
 
 public class HelloApplication extends Application {
     @Override
-    public void start(Stage stage) throws IOException, ClassNotFoundException {
+    public void start(Stage stage) throws IOException, ClassNotFoundException, IllegalAccessException {
+        Documentarian doc = new Documentarian();
 
-        getInfoAboutClass("com.example.documentarian.Polygon");
+        Point point = new Point();
+        point.setW(10);
+        Polygon polygon = new Polygon();
+        polygon.p = point;
+
+        doc.classInstanceInfo(polygon);
+//        doc.classInstanceInfo(point);
+
+//        getInfoAboutClass("com.example.documentarian.Polygon");
 //        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
 //        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
 //        stage.setTitle("Hello!");
 //        stage.setScene(scene);
 //        stage.show();
     }
-
     public String getInfoAboutClass(Class<?> clazz) {
 //        Field[] fields = clazz.getFields();
 //        for (Field field : fields) {
