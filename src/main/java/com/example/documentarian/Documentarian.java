@@ -1,73 +1,109 @@
 package com.example.documentarian;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 
 public class Documentarian {
     private static HashSet<String> classInstances = new HashSet<>();
-    private HtmlReportController htmlController = new HtmlReportController();
+    private HtmlReportGenerator htmlGenerator = new HtmlReportGenerator();
     public void getClassInstanceReport(Object obj) throws IllegalAccessException {
-        htmlController.clearReport();
-        System.out.println(htmlController.absoluteReportPath() + "\\" +getValueInfo(obj)+ ".html");
+//        htmlGenerator.clearReportDir();
+        htmlGenerator.setReportFileName(getValueReference(obj));
+        System.out.println(htmlGenerator.htmlReportFileName());
         classInstanceInfo(obj);
+        htmlGenerator.saveHtmlReport();
+
     }
     public void classInstanceInfo(Object obj) throws IllegalAccessException {
         if (obj == null || classInstances.contains(obj.toString()))
             return;
         classInstances.add(obj.toString());
         Class<?> aClass = obj.getClass();
-
         ArrayList<FieldDTO> fieldDTOs = new ArrayList<>();
         FieldDTO baseClass = new FieldDTO();
-
         baseClass.modifiers = getModifiers(aClass.getModifiers());
+        baseClass.modifiers += " class";
         baseClass.type =  aClass.getSimpleName();
-        baseClass.value = getValueInfo(obj);
+        baseClass.value = getValueReference(obj);
         baseClass.isBasicType = isBasicType(aClass);
-        baseClass.isArray = false;
+        baseClass.isCollection = false;
         fieldDTOs.add(baseClass);
 
         Field[] fields = aClass.getDeclaredFields();
         for (Field field : fields) {
             field.setAccessible(true);
             FieldDTO fieldDTO = new FieldDTO();
-
-            fieldDTO.isArray = false;
+            fieldDTO.isCollection = false;
             fieldDTO.isBasicType = true;
             int mod = field.getModifiers();
             fieldDTO.modifiers = getModifiers(mod);
-//            System.out.println(modifiers);
-
             fieldDTO.type = field.getType().getSimpleName();
-            fieldDTO.value = "";
+            fieldDTO.name = field.getName();
+
             Object subObj = field.get(obj);
+            Class<?> subClass = subObj.getClass();
             if (subObj == null) {
                 fieldDTO.value  += "null";
             } else {
-                Class<?> subClass = subObj.getClass();
                 fieldDTO.isBasicType = isBasicType(subClass);
                 if (field.getType().isArray()) {
-                    fieldDTO.isArray = true;
-                    fieldDTO.value  += "[ ";
-
-                    Field[] subFields = subClass.getDeclaredFields();
-                    Object[] objects = (Object[]) subObj;
-                    for (Object objItem : objects) {
-//                        subField.setAccessible(true);
-                        fieldDTO.value  += "<a href=\""+ htmlController.absoluteReportPath() + "\\" + getValueInfo(objItem)+ ".html"+"\">" + getValueInfo(objItem) + "</a>" + ", ";
-                    }
-                    fieldDTO.value  += " ]";
-                } else {
+                    fieldDTO.isCollection = true;
+                    fieldDTO.value = getValueInfoFromArray(subObj);
+                } else if (Map.class.isAssignableFrom(subClass)) {
+                    Map map = (Map) subObj;
+                    Iterator<Map.Entry> it = map.entrySet().iterator();
+                    Map.Entry entry = it.next();
+                    Object entryKey = entry.getKey();
+                    Object entryValue = entry.getValue();
+                    fieldDTO.type += "["+entryKey.getClass().getSimpleName()+", "+entryValue.getClass().getSimpleName()+"]";
+                    fieldDTO.isCollection = true;
+                    fieldDTO.value = getValueInfoFromMap(map);
+                }
+                else {
                     fieldDTO.value  = getValueInfo(field.get(obj));
                 }
             }
             fieldDTOs.add(fieldDTO);
         }
-        htmlController.createHtmlFileFromClassInstance(fieldDTOs);
+        htmlGenerator.addClassInstance(fieldDTOs);
+//        htmlGenerator.createHtmlFileFromClassInstance(fieldDTOs);
 
+    }
+    private String getValueInfoFromMap(Map map) throws IllegalAccessException {
+        String value = "[ ";
+        int count = 0;
+        for (Object obj : map.keySet()) {
+            value += "{" + getValueInfo(obj) + ", " + getValueInfo(map.get(obj)) + "}";
+            if (count < map.size()-1)
+                value += ", ";
+            ++count;
+        }
+        value  += " ]";
+        return value;
+    }
+    private String getValueInfoFromArray(Object subObj) throws IllegalAccessException {
+        String value = "[ ";
+        Object[] objects = (Object[]) subObj;
+        for(int i=0; i<objects.length; i++) {
+            Object objItem = objects[i];
+            value += getValueInfo(objItem);
+            if (i < objects.length-1)
+                value += ", ";
+        }
+        value  += " ]";
+        return value;
+    }
+    public String getValueReference(Object obj) throws IllegalAccessException {
+        String fieldRef = obj.toString();
+        int SimpleRefStart = fieldRef.lastIndexOf(".") + 1;
+        if (SimpleRefStart < 0 || SimpleRefStart >= fieldRef.length())
+            SimpleRefStart =0;
+        String ref = fieldRef.substring(SimpleRefStart);
+        return ref;
     }
     public String getValueInfo(Object obj) throws IllegalAccessException {
         String value = "";
@@ -81,14 +117,15 @@ public class Documentarian {
                 int SimpleRefStart = fieldRef.lastIndexOf(".") + 1;
                 if (SimpleRefStart < 0 || SimpleRefStart >= fieldRef.length())
                     SimpleRefStart =0;
-                value = fieldRef.substring(SimpleRefStart) ;
+                fieldRef = fieldRef.substring(SimpleRefStart);
+                value = "<a href=\"#"+ fieldRef+"\">" + fieldRef + "</a>";
                 classInstanceInfo(obj);
             }
         }
         return value;
     }
     private boolean isBasicType(Class<?> type) {
-        return !type.toString().contains("com.example.");
+        return !type.toString().contains("com.example.") && !type.toString().contains("placeholders.");
     }
     private String getModifiers(int mod ) {
         String str = "";
