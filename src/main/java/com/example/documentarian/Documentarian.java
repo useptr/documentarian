@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Documentarian {
-    private static HashSet<String> classInstances = new HashSet<>();
-    private HtmlReportGenerator htmlGenerator = new HtmlReportGenerator();
+    private static HashSet<String> classInstances = new HashSet<>(); // хранит ссылки на обработанные классы для исключения повторной обработки
+    private HtmlReportGenerator htmlGenerator = new HtmlReportGenerator(); // вспомогательный класс генерирующий html документ
     public void getClassInstanceReport(Object obj) throws IllegalAccessException {
 //        htmlGenerator.clearReportDir();
         htmlGenerator.setReportFileName(getValueReference(obj));
@@ -17,7 +17,7 @@ public class Documentarian {
         classInstanceInfo(obj);
         htmlGenerator.saveHtmlReport();
 
-    }
+    } // создание html документа по содержимому класса
     public void classInstanceInfo(Object obj) throws IllegalAccessException {
         if (obj == null || classInstances.contains(obj.toString()))
             return;
@@ -72,7 +72,7 @@ public class Documentarian {
         htmlGenerator.addClassInstance(fieldDTOs);
 //        htmlGenerator.createHtmlFileFromClassInstance(fieldDTOs);
 
-    }
+    } // рекурсивная обработка экземпляров класса
     private String getValueInfoFromMap(Map map) throws IllegalAccessException {
         String value = "[ ";
         int count = 0;
@@ -84,7 +84,7 @@ public class Documentarian {
         }
         value  += " ]";
         return value;
-    }
+    } // возвращает содержимое поля-словаря
     private String getValueInfoFromArray(Object subObj) throws IllegalAccessException {
         String value = "[ ";
         Object[] objects = (Object[]) subObj;
@@ -96,7 +96,7 @@ public class Documentarian {
         }
         value  += " ]";
         return value;
-    }
+    } // возвращает содержимое поля-массива
     public String getValueReference(Object obj) throws IllegalAccessException {
         String fieldRef = obj.toString();
         int SimpleRefStart = fieldRef.lastIndexOf(".") + 1;
@@ -104,7 +104,7 @@ public class Documentarian {
             SimpleRefStart =0;
         String ref = fieldRef.substring(SimpleRefStart);
         return ref;
-    }
+    } // возвращает ссылку на класс
     public String getValueInfo(Object obj) throws IllegalAccessException {
         String value = "";
         if (obj == null) {
@@ -123,10 +123,10 @@ public class Documentarian {
             }
         }
         return value;
-    }
+    } // возвращает содержимое поля
     private boolean isBasicType(Class<?> type) {
         return !type.toString().contains("com.example.") && !type.toString().contains("placeholders.");
-    }
+    } // определяет созданный пользователем класс или стандартный
     private String getModifiers(int mod ) {
         String str = "";
         if (Modifier.isPrivate(mod))
@@ -161,5 +161,5 @@ public class Documentarian {
             str += " strictfp";
 
         return str;
-    }
+    } // возвращает все модификаторы поля
 }

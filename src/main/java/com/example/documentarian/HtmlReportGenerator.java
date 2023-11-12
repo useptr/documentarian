@@ -11,12 +11,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class HtmlReportGenerator {
-//    private Path curPath;
-    private Path reportDir;
-    private String htmlReport;
-    private String reportFileName;
-    private ArrayList<String> instances = new ArrayList<>();
-    private String css;
+    private Path reportDir; // путь до дериктории с html отчетом
+    private String htmlReport; // html документ
+    private String reportFileName; // имя html документа
+    private ArrayList<String> instances = new ArrayList<>(); // html разметка для каждого экземпляра класса
+    private String css; // css стили html документа
     public HtmlReportGenerator() {
         reportDir = Paths.get("report");
         reportFileName = AbsolutePath(reportDir) + "\\report.html";
@@ -49,10 +48,7 @@ public class HtmlReportGenerator {
         htmlReport = "<!DOCTYPE html>\n<html>\n<body><head>\n<style>";
         htmlReport += css;
         htmlReport += "</style>\n</head>";
-    }
-    public void closeDefaulHtmlTags() {
-        htmlReport += "</body>\n</html>";
-    }
+    } // конструктор генерирующий стандартный html документ
     public void addClassInstance(ArrayList<FieldDTO> fields) {
 
         String instance = "<div class=\"instance\">\n<div class=\"title\">\n";
@@ -75,13 +71,10 @@ public class HtmlReportGenerator {
         }
         instance += "</div>\n</div>";
         instances.add(instance);
-    }
-    public void  setReportFileName(String instance) {
-        reportFileName = AbsolutePath(reportDir) + "\\"+instance+"-report.html";
-    }
+    } // добавление в instances html разметки для экземпляра класса
     public String htmlReportFileName() {
         return reportFileName;
-    }
+    } // возвращает имя html документа
     public void saveHtmlReport() {
         for (int i = instances.size()-1; i >= 0; i--)
             htmlReport += instances.get(i);
@@ -94,7 +87,13 @@ public class HtmlReportGenerator {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
+    } // сохраняет html документ
+    boolean deleteAllFilesInDirectory(File directoryToBeDeleted) {
+        for (File file: Objects.requireNonNull(directoryToBeDeleted.listFiles())) {
+            file.delete();
+        }
+        return true;
+    } // удаляет все файлы из папки с отчетом
     public String AbsolutePath(Path path) {
         String absolutePath = path.toAbsolutePath().toString();
         return absolutePath;
@@ -112,12 +111,13 @@ public class HtmlReportGenerator {
         }
         return reportDirEmptyAndExist;
     }
-    boolean deleteAllFilesInDirectory(File directoryToBeDeleted) {
-        for (File file: Objects.requireNonNull(directoryToBeDeleted.listFiles())) {
-                file.delete();
-        }
-        return true;
+    public void  setReportFileName(String instance) {
+        reportFileName = AbsolutePath(reportDir) + "\\"+instance+"-report.html";
     }
+    public void closeDefaulHtmlTags() {
+        htmlReport += "</body>\n</html>";
+    }
+
     public void createHtmlFileFromClassInstance(ArrayList<FieldDTO> fields) {
         String html = "<!DOCTYPE html>\n<html>\n<body><head>\n<style>";
         html += css;

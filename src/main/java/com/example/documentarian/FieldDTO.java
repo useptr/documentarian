@@ -1,10 +1,10 @@
 package com.example.documentarian;
 
 public class FieldDTO {
-    public String modifiers;
-    public String type;
-    public String name;
-    public String value;
-    public boolean isBasicType;
-    public boolean isCollection;
+    public String modifiers; // модификаторы поля
+    public String type; // тип поля
+    public String name; // имя поля
+    public String value; // значение поля
+    public boolean isBasicType; // стандартный тип данных
+    public boolean isCollection; // коллекция
 }
