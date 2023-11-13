@@ -1,12 +1,14 @@
 package placeholders;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class CitiesPhoneBook {
-    private HashMap<String,PhoneBook> citiesPhoneBook = new HashMap<>();
+    private PhoneBook[] citiesPhoneBook = new PhoneBook[3];
     private int citiesCounter = 0;
     public void addPhoneBook(String city, PhoneBook book) {
-        citiesPhoneBook.put(city, book);
+//        citiesPhoneBook.add(book);
+        citiesPhoneBook[citiesCounter] = book;
         ++citiesCounter;
     }
 }

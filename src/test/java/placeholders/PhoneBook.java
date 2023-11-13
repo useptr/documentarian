@@ -1,9 +1,10 @@
 package placeholders;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PhoneBook {
-    private HashMap<String,Person> phoneBook = new HashMap<>();
+    private Person[] phoneBook = new Person[4];
     private int phoneCounter = 0;
     private String city;
     public PhoneBook(String city) {
@@ -13,7 +14,8 @@ public class PhoneBook {
         return city;
     }
     public void addNumber(String phone, Person person) {
-        phoneBook.put(phone, person);
+//        phoneBook.add(person);
+        phoneBook[phoneCounter] = person;
         ++phoneCounter;
     }
 

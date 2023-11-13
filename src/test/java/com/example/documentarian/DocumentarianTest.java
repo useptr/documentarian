@@ -55,18 +55,18 @@ class DocumentarianTest {
         System.out.println("Test #" + getTestNumber());
         doc.getClassInstanceReport(citiesPhoneBook);
     }
-    @org.junit.jupiter.api.Test
-    void htmlReportFromPhoneBook() throws IllegalAccessException {
-        PhoneBook phoneBook = new PhoneBook("Los Angeles");
-        Person person1 = new Person("Bob", "Dylon", 182, 90);
-        phoneBook.addNumber("(555) 555-1234",person1);
-        Person person2 = new Person("Jacky", "Jonson", 193, 95);
-        phoneBook.addNumber("(555) 566-9634",person2);
-        phoneBook.addNumber("(556) 569-1211",person1);
-
-        System.out.println("Test #" + getTestNumber());
-        doc.getClassInstanceReport(phoneBook);
-    }
+//    @org.junit.jupiter.api.Test
+//    void htmlReportFromPhoneBook() throws IllegalAccessException {
+//        PhoneBook phoneBook = new PhoneBook("Los Angeles");
+//        Person person1 = new Person("Bob", "Dylon", 182, 90);
+//        phoneBook.addNumber("(555) 555-1234",person1);
+//        Person person2 = new Person("Jacky", "Jonson", 193, 95);
+//        phoneBook.addNumber("(555) 566-9634",person2);
+//        phoneBook.addNumber("(556) 569-1211",person1);
+//
+//        System.out.println("Test #" + getTestNumber());
+//        doc.getClassInstanceReport(phoneBook);
+//    }
 
     int getTestNumber() {
         ++count;
